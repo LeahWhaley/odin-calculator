@@ -15,7 +15,6 @@ function onDivide( num1, num2 ) {
 }
 
 function onMod( num1, num2 ) {
-    console.log("MOD: num1: " + num1 + " num2: " + num2);
     return num1 % num2;
 }
 
@@ -64,13 +63,16 @@ function updateDisplay( input ) {
         num2 = null;
         operator = null;
         number = "";
+        result = "";
     } else if ( input == "clear" ) {
-        console.log("Starting: num1: " + num1 + " num2: " + num2 + " operator: " + operator);
         let deleted = display.textContent.slice(display.textContent.length - 1);
-        console.log("Deleted: " + deleted);
         if ( deleted == "" ) {
             updateHistory("");
         } else if ( numbers.includes(deleted) && operator == null) {
+            if (result !== "") {
+                updateHistory(historyDisp.textContent + result);
+                result = "";
+            }
             num1 = Math.floor( num1 / 10 );
             number = Math.floor( number / 10 );
             if ( num1 == 0 ) {
@@ -92,15 +94,12 @@ function updateDisplay( input ) {
             operator = null;
         }
         display.textContent = display.textContent.substring(0, display.textContent.length - 1);
-        console.log("Ending: num1: " + num1 + " num2: " + num2 + " operator: " + operator);
     } else if ( input == "=" ) {
-        console.log("First: " + num1 + " Second: " + num2 + " Operator: " + operator);
         if (operator == "divide" && num2 == 0) {
             alert("You tried to divide by 0!");
-            updateDisplay("clear");
-            updateDisplay("clear");
+            updateDisplay("allClear");
         } else {
-            let result = operate( Number(num1), Number(num2), operator );
+            result = operate( Number(num1), Number(num2), operator );
             updateHistory(display.textContent + "=");
             result = Math.round( result * Math.pow( 10, 3 )) / Math.pow( 10, 3 );
             if ( result < 0 ) {
@@ -110,12 +109,19 @@ function updateDisplay( input ) {
             }
         }
     } else if ( input == "sign" ) { 
-        if ( number == "" ) {
+        if ( number === "" ) {
             display.textContent += "(-";
-        } else if ( number < 0 ) {
+        } else if ( num1 == null && number < 0 ) {
             display.textContent = display.textContent.replace("(-", "");
+            display.textContent = display.textContent.replace(")", "");
+        } else if ( num1 == null && number > 0) {
+            display.textContent = display.textContent.slice(0, display.textContent.length - number.toString().length) + "(-" + number;
+        } else if ( number > 0 ) {
+            display.textContent = display.textContent.slice(0, display.textContent.length - number.toString().length) + "(-" + number;
+        } else if ( number < 0 ) {
+            display.textContent = display.textContent.slice(0, display.textContent.length - number.toString().length - 1) + (0 - number);
         } else {
-            display.textContent = display.textContent.slice(0, num1.toString().length) + "(-" + number;
+            display.textContent = "";
         }
     } else {
         if ( display.textContent == "0" && numbers.includes(input)) {
@@ -126,301 +132,239 @@ function updateDisplay( input ) {
     }
 }
 
-// INITIALIZE num1
-let num1 = null;
-// INITIALIZE num2
-let num2 = null;
-// INITIALIZE operator
-let operator = null;
-
-let number = "";
-let result = "";
-let historyDisp = document.querySelector(".history");
-let display = document.querySelector(".input");
-
-const numbers = "123456789";
-
-const allClearButton = document.querySelector("#allClear");
-allClearButton.addEventListener("click", () => {
-    updateDisplay("allClear");
-    num1 = null;
-    num2 == null;
-    operator = null;
-    number = "";
-})
-
-const clearButton = document.querySelector("#clear");
-clearButton.addEventListener("click", () => {
-    updateDisplay("clear");
-})
-
-const modButton = document.querySelector("#mod");
-modButton.addEventListener("click", () => {
-    if ( operator != null && num2 == null ) {
-        updateDisplay("clear");
-    }
-    operator = "mod";
-    if (num1 == null && result != "") {
-        num1 = result;
-        result = "";
-    } else if (num1 == null) {
-        num1 = number;
-    } else if (number != "") {
-        num2 = number;
-        updateDisplay("=");
-        num2 == null;
-    }
-    if (number < 0) {
-        updateDisplay(")");
-    }
-    number = "";
-    updateDisplay("%");
-})
-
-const divideButton = document.querySelector("#divide");
-divideButton.addEventListener("click", () => {
-    if ( operator != null && num2 == null ) {
-        updateDisplay("clear");
-    }
-    operator = "divide";
-    
-    if (num1 == null && result != "") {
-        num1 = result;
-        result = "";
-    } else if (num1 == null) {
-        num1 = number;
-    } else if (number != "") {
-        num2 = number;
-        updateDisplay("=");
-        num2 == null;
-    }
-    if (number < 0) {
-        updateDisplay(")");
-    }
-    number = "";
-    updateDisplay("÷");
-})
-
-const sevenButton = document.querySelector("#seven");
-sevenButton.addEventListener("click", () => {
-    if (result != "") {
-        updateHistory( historyDisp.textContent + result );
-        for (let i = 0; i < display.textContent.length; i++) {
+function zero() {
+    if (result !== "") {
+        let length = display.textContent.length;
+        for (let i = 0; i < length; i++) {
             updateDisplay("clear");
         }
         result = "";
-    } 
-    updateDisplay("7");
-    number += "7";
-})
-
-const eightButton = document.querySelector("#eight");
-eightButton.addEventListener("click", () => {
-    if (result != "") {
-        updateHistory( historyDisp.textContent + result );
-        for (let i = 0; i < display.textContent.length; i++) {
-            updateDisplay("clear");
-        }
-        result = "";
-    } 
-    updateDisplay("8");
-    number += "8";
-})
-
-const nineButton = document.querySelector("#nine");
-nineButton.addEventListener("click", () => {
-    if (result != "") {
-        updateHistory( historyDisp.textContent + result );
-        for (let i = 0; i < display.textContent.length; i++) {
-            updateDisplay("clear");
-        }
-        result = "";
-    } 
-    updateDisplay("9");
-    number += "9";
-})
-
-const multiplyButton = document.querySelector("#multiply");
-multiplyButton.addEventListener("click", () => {
-    if ( operator != null && num2 == null ) {
-        updateDisplay("clear");
     }
-    operator = "multiply";
-    
-    if (num1 == null && result != "") {
-        num1 = result;
-        result = "";
-    } else if (num1 == null) {
-        num1 = number;
-    } else if (number != "") {
-        num2 = number;
-        updateDisplay("=");
-        num2 == null;
+    if (number !== "0") { 
+        updateDisplay("0");
+        number += "0";
     }
+} 
 
-    if ( number < 0 ) {
-        updateDisplay(")")
-    }
-    number = "";
-    updateDisplay("x");
-})
-
-const fourButton = document.querySelector("#four");
-fourButton.addEventListener("click", () => {
-    if (result != "") {
-        updateHistory( historyDisp.textContent + result );
-        for (let i = 0; i < display.textContent.length; i++) {
-            updateDisplay("clear");
-        }
-        result = "";
-    } 
-    updateDisplay("4");
-    number += "4";
-})
-
-const fiveButton = document.querySelector("#five");
-fiveButton.addEventListener("click", () => {
-    if (result != "") {
-        updateHistory( historyDisp.textContent + result );
-        for (let i = 0; i < display.textContent.length; i++) {
-            updateDisplay("clear");
-        }
-        result = "";
-    } 
-    updateDisplay("5");
-    number += "5";
-})
-
-const sixButton = document.querySelector("#six");
-sixButton.addEventListener("click", () => {
-    if (result != "") {
-        updateHistory( historyDisp.textContent + result );
-        for (let i = 0; i < display.textContent.length; i++) {
-            updateDisplay("clear");
-        }
-        result = "";
-    } 
-    updateDisplay("6");
-    number += "6";
-})
-
-const subtractButton = document.querySelector("#subtract");
-subtractButton.addEventListener("click", () => {
-    if ( operator != null && num2 == null ) {
-        updateDisplay("clear");
-    }
-    operator = "subtract";
-    if (num1 == null && result != "") {
-        num1 = result;
-        result = "";
-    } else if (num1 == null) {
-        num1 = number;
-    } else if (number != "") {
-        num2 = number;
-        updateDisplay("=");
-        num2 == null;
-    }
-
-    if ( number < 0 ) {
-        updateDisplay(")")
-    }
-    number = "";
-    updateDisplay("-");
-})
-
-const oneButton = document.querySelector("#one");
-oneButton.addEventListener("click", () => {
-    if (result != "") {
-        updateHistory( historyDisp.textContent + result );
-        for (let i = 0; i < display.textContent.length; i++) {
+function one() {
+    if (result !== "") {
+        let length = display.textContent.length;
+        for (let i = 0; i < length; i++) {
             updateDisplay("clear");
         }
         result = "";
     } 
     updateDisplay("1");
     number += "1";
-})
+}
 
-const twoButton = document.querySelector("#two");
-twoButton.addEventListener("click", () => {
-    if (result != "") {
-        updateHistory( historyDisp.textContent + result );
-        for (let i = 0; i < display.textContent.length; i++) {
+function two() {
+    if (result !== "") {
+        let length = display.textContent.length;
+        for (let i = 0; i < length; i++) {
             updateDisplay("clear");
         }
         result = "";
     } 
     updateDisplay("2");
     number += "2";
-})
+}
 
-const threeButton = document.querySelector("#three");
-threeButton.addEventListener("click", () => {
-    if (result != "") {
-        updateHistory( historyDisp.textContent + result );
-        for (let i = 0; i < display.textContent.length; i++) {
+function three() {
+    if (result !== "") {
+        let length = display.textContent.length;
+        for (let i = 0; i < length; i++) {
             updateDisplay("clear");
         }
         result = "";
     } 
     updateDisplay("3");
     number += "3";
-})
+}
 
-const plusButton = document.querySelector("#plus");
-plusButton.addEventListener("click", () => {
-    if ( operator != null && num2 == null ) {
-        updateDisplay("clear");
-    }
-    operator = "plus";
-    if (num1 == null && result != "") {
-        num1 = result;
-        result = "";
-    } else if (num1 == null) {
-        num1 = number;
-    } else if (number != "") {
-        num2 = number;
-        updateDisplay("=");
-        num2 == null;
-    }
-    if ( number < 0 ){
-        updateDisplay(")");
-    }
-    number = "";
-    updateDisplay("+");
-})
-
-const signButton = document.querySelector("#sign");
-signButton.addEventListener("click", () => {
-    if ( result != "" ) {
-        number = result;
-        result = "";
-    }
-    updateDisplay("sign");
-    if ( number == "" ) {
-        number = "-";
-    } else {
-        number = 0 - number;
-    }
-})
-
-const zeroButton = document.querySelector("#zero");
-zeroButton.addEventListener("click", () => {
-    if (result != "") {
-        updateHistory( historyDisp.textContent + result );
-        for (let i = 0; i < display.textContent.length; i++) {
+function four() {
+    if (result !== "") {
+        let length = display.textContent.length;
+        for (let i = 0; i < length; i++) {
             updateDisplay("clear");
         }
         result = "";
     } 
-    updateDisplay("0");
-    number += "0";
-})
+    updateDisplay("4");
+    number += "4";
+}
 
-const decimalButton = document.querySelector("#decimal");
-decimalButton.addEventListener("click", () => {
+function five() {
+    if (result !== "") {
+        let length = display.textContent.length;
+        for (let i = 0; i < length; i++) {
+            updateDisplay("clear");
+        }
+        result = "";
+    } 
+    updateDisplay("5");
+    number += "5";
+}
+
+function six() {
+    if (result !== "") {
+        let length = display.textContent.length;
+        for (let i = 0; i < length; i++) {
+            updateDisplay("clear");
+        }
+        result = "";
+    } 
+    updateDisplay("6");
+    number += "6";
+}
+
+
+function seven() {
+    if (result !== "") {
+        let length = display.textContent.length;
+        for (let i = 0; i < length; i++) {
+            updateDisplay("clear");
+        }
+        result = "";
+    } 
+    updateDisplay("7");
+    number += "7";
+}
+
+function eight() {
+    if (result !== "") {
+        let length = display.textContent.length;
+        for (let i = 0; i < length; i++) {
+            updateDisplay("clear");
+        }
+        result = "";
+    } 
+    updateDisplay("8");
+    number += "8";
+}
+
+function nine() {
+    if (result !== "") {
+        let length = display.textContent.length;
+        for (let i = 0; i < length; i++) {
+            updateDisplay("clear");
+        }
+        result = "";
+    } 
+    updateDisplay("9");
+    number += "9";
+}
+
+function plus() {
+    if ( num1 != null || number != ""  || result !== "" ) {
+        if ( operator != null && number == "" ) {
+        updateDisplay("clear");
+        }
+        operator = "plus";
+        if (num1 == null && result !== "") {
+            num1 = result;
+            result = "";
+        } else if (num1 == null) {
+            num1 = number;
+        } else if (number != "") {
+            num2 = number;
+            updateDisplay("=");
+            num1 = result;
+            num2 = null;
+            result = "";
+        }
+        if ( number < 0 ){
+            updateDisplay(")");
+        }
+        number = "";
+        updateDisplay("+");
+    }
+}
+
+function subtract() {
+    if ( num1 != null || number != "" || result !== "" ) {
+        if ( operator != null && number == "" ) {
+            updateDisplay("clear");
+        }
+        operator = "subtract";
+        if (num1 == null && result !== "") {
+            num1 = result;
+            result = "";
+        } else if (num1 == null) {
+            num1 = number;
+        } else if (number != "") {
+            num2 = number;
+            updateDisplay("=");
+            num1 = result;
+            num2 = null;
+            result = "";
+        }
+
+        if ( number < 0 ) {
+            updateDisplay(")")
+        }
+        number = "";
+        updateDisplay("-");
+    }
+}
+
+function multiply() {
+    if ( num1 != null || number != "" || result !== "" ) {
+        if ( operator != null && number == "" ) {
+            updateDisplay("clear");
+        }
+        operator = "multiply";
+        
+        if (num1 == null && result !== "") {
+            num1 = result;
+            result = "";
+        } else if (num1 == null) {
+            num1 = number;
+        } else if (number != "") {
+            num2 = number;
+            updateDisplay("=");
+            num1 = result;
+            num2 = null;
+            result = "";
+        }
+
+        if ( number < 0 ) {
+            updateDisplay(")")
+        }
+        number = "";
+        updateDisplay("x");
+    }
+}
+
+function divide() {
+    if ( num1 != null || number != "" || result !== "" ) {
+        if ( operator != null && number == "" ) {
+            updateDisplay("clear");
+        }
+        operator = "divide";
+        
+        if (num1 == null && result !== "") {
+            num1 = result;
+            result = "";
+        } else if (num1 == null) {
+            num1 = number;
+        } else if (number != "") {
+            num2 = number;
+            updateDisplay("=");
+            num1 = result;
+            num2 = null;
+            result = "";
+        }
+        if (number < 0) {
+            updateDisplay(")");
+        }
+        number = "";
+        updateDisplay("÷");
+    }
+}
+
+function decimal() {
     if (result != "") {
-        updateHistory( historyDisp.textContent + result );
         for (let i = 0; i < display.textContent.length; i++) {
             updateDisplay("clear");
         }
@@ -436,11 +380,39 @@ decimalButton.addEventListener("click", () => {
             number += ".";
         }
     }
-})
+}
 
-const equalsButton = document.querySelector("#equals");
-equalsButton.addEventListener("click", () => {
-    console.log("num1: " + num1 + " operator: " + operator + " number: " + number + " num2: " + num2);
+function mod() {
+    if ( num1 != null || number != "" || result !== "" ) {
+        if ( operator != null && number == "" ) {
+            updateDisplay("clear");
+        }
+        operator = "mod";
+        if (num1 == null && result != "") {
+            num1 = result;
+            result = "";
+        } else if (num1 == null) {
+            num1 = number;
+        } else if (number != "") {
+            num2 = number;
+            updateDisplay("=");
+            num1 = result;
+            num2 = null;
+            result = "";
+        }
+        if (number < 0) {
+            updateDisplay(")");
+        }
+        number = "";
+        updateDisplay("%");
+    }
+}
+
+function clear() {
+    updateDisplay("clear");
+}
+
+function equals() {
     if (num1 == null || operator == null || number == "" ) {
         // Do nothing
     } else {
@@ -454,4 +426,125 @@ equalsButton.addEventListener("click", () => {
         operator = null;
         number = "";
     }
+} 
+
+// INITIALIZE num1
+let num1 = null;
+// INITIALIZE num2
+let num2 = null;
+// INITIALIZE operator
+let operator = null;
+
+let number = "";
+let result = "";
+let historyDisp = document.querySelector(".history");
+let display = document.querySelector(".input");
+
+const numbers = "1234567890";
+
+let buttons = document.querySelector("body");
+buttons.addEventListener("keydown", (e) => {
+    switch ( e.key ) {
+        case "0": zero(); break;
+        case "1": one(); break;
+        case "2": two(); break;
+        case "3": three(); break;
+        case "4": four(); break;
+        case "5": five(); break;
+        case "6": six(); break;
+        case "7": seven(); break;
+        case "8": eight(); break;
+        case "9": nine(); break;
+        case "+": plus(); break;
+        case "-": subtract(); break;
+        case "x": multiply(); break;
+        case "*": multiply(); break;
+        case "/": divide(); break;
+        case ".": decimal(); break;
+        case "%": mod(); break;
+        case "Backspace": clear(); break;
+        case "Enter": equals(); break;
+    }
+    e.preventDefault();
 })
+
+const allClearButton = document.querySelector("#allClear");
+allClearButton.addEventListener("click", () => {
+    updateDisplay("allClear");
+    num1 = null;
+    num2 == null;
+    operator = null;
+    number = "";
+    result = ""
+    updateHistory("");
+})
+
+const clearButton = document.querySelector("#clear");
+clearButton.addEventListener("click", clear)
+
+const modButton = document.querySelector("#mod");
+modButton.addEventListener("click", mod)
+
+const divideButton = document.querySelector("#divide");
+divideButton.addEventListener("click", divide)
+
+const sevenButton = document.querySelector("#seven");
+sevenButton.addEventListener("click", seven);
+
+const eightButton = document.querySelector("#eight");
+eightButton.addEventListener("click", eight)
+
+const nineButton = document.querySelector("#nine");
+nineButton.addEventListener("click", nine)
+
+const multiplyButton = document.querySelector("#multiply");
+multiplyButton.addEventListener("click", multiply)
+
+const fourButton = document.querySelector("#four");
+fourButton.addEventListener("click", four)
+
+const fiveButton = document.querySelector("#five");
+fiveButton.addEventListener("click", five)
+
+const sixButton = document.querySelector("#six");
+sixButton.addEventListener("click", six)
+
+const subtractButton = document.querySelector("#subtract");
+subtractButton.addEventListener("click", subtract)
+
+const oneButton = document.querySelector("#one");
+oneButton.addEventListener("click", one)
+
+const twoButton = document.querySelector("#two");
+twoButton.addEventListener("click", two)
+
+const threeButton = document.querySelector("#three");
+threeButton.addEventListener("click", three)
+
+const plusButton = document.querySelector("#plus");
+plusButton.addEventListener("click", plus)
+
+const signButton = document.querySelector("#sign");
+signButton.addEventListener("click", () => {
+    if ( result != "" ) {
+        number = result;
+        result = "";
+    }
+    updateDisplay("sign");
+    if ( number == "" ) {
+        number = "-";
+    } else if ( number == "-" ) {
+        number = "";
+    } else {
+        number = 0 - number;
+    }
+})
+
+const zeroButton = document.querySelector("#zero");
+zeroButton.addEventListener("click", zero)
+
+const decimalButton = document.querySelector("#decimal");
+decimalButton.addEventListener("click", decimal)
+
+const equalsButton = document.querySelector("#equals");
+equalsButton.addEventListener("click", equals)
